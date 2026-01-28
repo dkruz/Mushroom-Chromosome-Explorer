@@ -6,58 +6,41 @@ An interactive, high-fidelity educational web application for exploring the geno
 
 The **Mushroom Chromosome Explorer** is a digital atlas designed for the mycological community, educators, and biology students. It serves as a bridge between high-level genomic data and visual biological education.
 
-### Purpose
-The primary goal of this application is to translate complex fungal karyotypes into a digestible, interactive format. By moving beyond static spreadsheets and raw sequence files, the Explorer allows users to visualize how the "blueprints of life" are physically organized within a mushroom's chromosomes.
-
 ### 🧪 Citizen Science Use Case
 This app is specifically designed to support hobbyists and citizen scientists who are moving into **molecular mycology**:
 - **Sequence Contextualization**: Users who have received FASTA data from labs (e.g., showing a 98% match to a known species) can use the Explorer to visualize the physical map of that reference genome.
 - **Functional Mapping**: Transition from "raw letters" to biological understanding by seeing where functional clusters (like the *MAT* locus or *CAZyme* regions) are situated.
-- **Comparative Analysis**: Identify whether genetic variations in a personal sample fall within stable "Core" regions or highly adaptive "Accessory" regions.
 
-### Scope
-- **Model Organisms**: Focused analysis of *Schizophyllum commune*, *Coprinopsis cinerea*, and *Agaricus bisporus*.
-- **The Dikaryon Lifecycle**: Special emphasis on the unique `n+n` nuclear state of higher fungi.
-- **Progressive Disclosure**: Three educational tiers (Beginner, Intermediate, Advanced) ensure the tool is useful for everyone from hobbyists to genomic researchers.
-
-## 🚀 Deployment (Google Cloud Run)
+## 🚀 Deployment & API Configuration
 
 This project is optimized for deployment to **Google Cloud Run** using the "No-Dockerfile" Buildpacks strategy.
 
-1. **Connect to GitHub**: Push this repository to a GitHub account.
-2. **Create Cloud Run Service**:
-   - Go to the [Google Cloud Console](https://console.cloud.google.com/run).
-   - Click **Create Service**.
-   - Select **Continuously deploy from a repository**.
-   - Choose this repository and the main branch.
-3. **Build Configuration**:
-   - When prompted for the Build Type, select **Google Cloud Buildpacks**.
-   - Google will detect the `package.json` and automatically handle the Node.js environment.
-4. **Environment Variables (Secrets)**:
-   - Under the **Configuration** tab during setup, add an environment variable:
-     - **Name**: `API_KEY`
-     - **Value**: Your Google Gemini API Key.
+### 1. Initial Deployment Flow
+When you click **"Create Service"** in the [Cloud Run Console](https://console.cloud.google.com/run), you are presented with a choice. **Choose the second option:**
 
-## 🔐 Security & Secrets
+**✅ Select: "Continuously deploy new revisions from a source repository"**
+- **Action**: Click the **SET UP WITH CLOUD BUILD** button.
+- **Action**: Link your GitHub repository and select the `main` branch.
+- **Action**: Under "Build Type," strictly select **Google Cloud Buildpacks**.
+- **Result**: Google will now automatically build and deploy your container every time you push code. You do **not** need to manually "Deploy Container."
 
-This application utilizes the **Google Gemini API** for genomic analysis. 
-- **The API Key is never hardcoded.** 
-- The application retrieves the key from the environment via `process.env.API_KEY`.
+### 2. How to add your API Key (Cloud Run Settings)
+The app requires an environment variable named **`API_KEY`** to communicate with the Gemini models.
+
+**During setup (at the bottom of the page) or after deployment:**
+1. Find the **Container(s), Volumes, Networking, Security** configuration section.
+2. Click the **Variables & Secrets** tab.
+3. Click **Add Variable**.
+4. **Name**: `API_KEY`
+5. **Value**: [Paste your key from Google AI Studio]
+6. Click **Create** or **Deploy**.
+
+## 🔐 Security Note
+- **Variable Name**: Ensure you use `API_KEY` exactly (not `GOOGLE_API_KEY`), as the application code specifically looks for this name.
+- **Secrets**: In production environments, it is recommended to use "Secret Manager" rather than plain-text environment variables.
 
 ## 🛠 Tech Stack
-
 - **Frontend**: React 19 + TypeScript
-- **Bundler**: Vite
 - **Styling**: Tailwind CSS
 - **AI Engine**: Google Gemini API (@google/genai)
-- **Data Source**: Optimized karyotypes inspired by DOE JGI MycoCosm.
 - **Hosting**: Google Cloud Run
-- **Source Control**: GitHub
-
-## 📁 Directory Structure
-
-- `/components`: UI modules including the Karyotype Explorer and Genomic Terminal.
-- `types.ts`: Strictly typed interfaces for genomic data structures.
-- `constants.ts`: Authoritative species data and functional color mapping.
-- `vite.config.ts`: Optimized build configuration for production assets.
-- `package.json`: Defines the build pipeline and production entry point for Cloud Run.
