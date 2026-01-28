@@ -14,6 +14,6 @@ export default defineConfig({
   },
   preview: {
     port: 8080,
-    allowedHosts: ['mushroomchromosomeexplorer-262311320321.us-west1.run.app']
+    allowedHosts: true
   }
 });
