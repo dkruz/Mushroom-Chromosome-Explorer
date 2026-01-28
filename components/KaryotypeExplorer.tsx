@@ -16,10 +16,10 @@ interface ChatMessage {
   text: string;
 }
 
-// 1. Optimized Genomic Terminal with Instructional Handshake
 const GenomicTerminal: React.FC<{ selectedChr: ChromosomeData | null; speciesId: string; level: EducationalLevel }> = React.memo(({ selectedChr, speciesId, level }) => {
   const [streamBuffer, setStreamBuffer] = useState<string[]>([]);
   const [isSyncing, setIsSyncing] = useState(true);
+  const [showLegend, setShowLegend] = useState(false);
   const streamEndRef = useRef<HTMLDivElement>(null);
   const streamIntervalRef = useRef<number | null>(null);
 
@@ -96,16 +96,44 @@ const GenomicTerminal: React.FC<{ selectedChr: ChromosomeData | null; speciesId:
   }, [streamBuffer]);
 
   return (
-    <div className="flex flex-col h-full font-mono p-8">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-3">
-          <div className={`w-2 h-2 rounded-full ${!isSyncing ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-amber-500'}`}></div>
-          <span className="text-[10px] font-black text-emerald-500/70 uppercase tracking-widest">
+    <div className="flex flex-col h-full font-mono p-8 relative">
+      <div className="flex justify-between items-center mb-6 gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className={`flex-shrink-0 w-2 h-2 rounded-full ${!isSyncing ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-amber-500'}`}></div>
+          <span className={`text-[10px] font-black tracking-widest uppercase transition-colors duration-500 truncate ${selectedChr ? 'text-emerald-400' : 'text-emerald-500/70'}`}>
             {isSyncing ? 'JGI_MYCOCOSM_LINKING...' : (selectedChr ? `PROTOCOL: MOLECULAR_SEQ` : 'PROTOCOL: ASSEMBLY_SCAN')}
           </span>
         </div>
-        <div className="text-[9px] text-emerald-900/50 font-bold uppercase">Source: DOE_JGI</div>
+        <button 
+          onClick={() => setShowLegend(!showLegend)}
+          className={`flex-shrink-0 w-6 h-6 rounded-full border border-emerald-500/30 flex items-center justify-center text-[10px] text-emerald-500/50 hover:bg-emerald-500/10 transition-all ${showLegend ? 'bg-emerald-500 text-stone-900 border-emerald-500' : ''}`}
+        >
+          <i className="fa-solid fa-info"></i>
+        </button>
       </div>
+
+      {showLegend && (
+        <div className="absolute inset-0 z-20 bg-stone-950/95 backdrop-blur-md p-10 animate-in fade-in duration-300">
+           <div className="flex justify-between items-center mb-8 border-b border-emerald-500/20 pb-4">
+              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Protocol Glossary</span>
+              <button onClick={() => setShowLegend(false)} className="text-emerald-500/50 hover:text-emerald-500"><i className="fa-solid fa-xmark"></i></button>
+           </div>
+           <div className="space-y-6">
+              <div>
+                 <p className="text-[10px] font-black text-emerald-400 uppercase mb-1">ATCG String</p>
+                 <p className="text-[11px] text-stone-400 leading-relaxed italic">Nucleotide sequence representing the literal genetic code.</p>
+              </div>
+              <div>
+                 <p className="text-[10px] font-black text-emerald-400 uppercase mb-1">[TAGS]</p>
+                 <p className="text-[11px] text-stone-400 leading-relaxed italic">Molecular landmarks found during the assembly alignment.</p>
+              </div>
+              <div>
+                 <p className="text-[10px] font-black text-emerald-400 uppercase mb-1">>seq|REF</p>
+                 <p className="text-[11px] text-stone-400 leading-relaxed italic">Standard FastA header indicating a high-confidence genomic locus.</p>
+              </div>
+           </div>
+        </div>
+      )}
       
       <div ref={streamEndRef} className="flex-grow overflow-y-auto custom-scroll space-y-2 text-[11px] leading-tight">
         <div className="flex flex-col gap-2 opacity-90">
@@ -152,7 +180,6 @@ const KaryotypeExplorer: React.FC<KaryotypeExplorerProps> = ({ species, onBack }
     setIsDeepDiveOpen(false);
     setChatHistory([]);
     
-    // Show hint when a chromosome is selected, but only if not dismissed before
     if (selectedChr && !hintDismissed) {
       setShowHint(true);
       const timer = setTimeout(() => setShowHint(false), 5000);
@@ -313,7 +340,7 @@ const KaryotypeExplorer: React.FC<KaryotypeExplorerProps> = ({ species, onBack }
 
         <div className="lg:col-span-5 space-y-8 flex flex-col h-full min-h-[600px]">
           {selectedChr ? (
-            <div className="bg-stone-900 rounded-[40px] p-8 text-white shadow-xl relative overflow-hidden flex-shrink-0 animate-in slide-in-from-bottom-4">
+            <div className="bg-stone-900 rounded-[40px] p-8 text-white shadow-xl relative overflow-visible flex-shrink-0 animate-in slide-in-from-bottom-4">
                <div className="relative z-10">
                 <div className="flex items-center gap-4 mb-4">
                   <span className="bg-emerald-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest">Active Unit</span>
@@ -323,27 +350,33 @@ const KaryotypeExplorer: React.FC<KaryotypeExplorerProps> = ({ species, onBack }
                   </span>
                 </div>
                 <h3 className="text-3xl font-black mb-2 uppercase tracking-tight">{getLabel(selectedChr)}</h3>
-                <p className="text-stone-400 text-sm leading-relaxed mb-6 line-clamp-2">{selectedChr.description}</p>
+                <p className="text-stone-400 text-sm leading-relaxed mb-10 line-clamp-3">{selectedChr.description}</p>
                 
                 <div className="grid grid-cols-2 gap-4 relative">
                   <button onClick={handleAiConsult} className="bg-emerald-600 hover:bg-emerald-500 text-white py-4 px-6 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3">
                     <i className="fa-solid fa-wand-magic-sparkles"></i>
                     AI Hub
                   </button>
-                  <button onClick={handleDeepDiveTrigger} className="bg-stone-800 hover:bg-stone-700 text-white py-4 px-6 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3">
-                    <i className="fa-solid fa-magnifying-glass-chart"></i>
-                    Deep Dive
-                  </button>
-
-                  {/* Ghost Hint Tooltip */}
-                  {showHint && (
-                    <div className="absolute top-full left-0 right-0 pt-4 animate-in fade-in slide-in-from-top-2 duration-700 pointer-events-none">
-                       <div className="bg-emerald-500 text-stone-950 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest text-center shadow-lg flex items-center justify-center gap-2">
-                         <i className="fa-solid fa-arrow-up animate-bounce"></i>
-                         Inspect molecular loci in Deep Dive
-                       </div>
-                    </div>
-                  )}
+                  <div className="relative">
+                    <button 
+                      onClick={handleDeepDiveTrigger} 
+                      className={`w-full h-full bg-stone-800 hover:bg-stone-700 text-white py-4 px-6 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 ${showHint ? 'animate-ghost-pulse' : ''}`}
+                    >
+                      <i className="fa-solid fa-magnifying-glass-chart"></i>
+                      Deep Dive
+                    </button>
+                    {showHint && (
+                      <button 
+                        onClick={handleDeepDiveTrigger}
+                        className="absolute bottom-full left-0 right-0 mb-4 animate-in fade-in slide-in-from-bottom-2 duration-700 z-30 cursor-pointer group"
+                      >
+                        <div className="bg-emerald-500 text-stone-950 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest text-center shadow-2xl flex items-center justify-center gap-2 group-hover:bg-emerald-400 transition-colors whitespace-nowrap">
+                          <i className="fa-solid fa-arrow-down animate-bounce"></i>
+                          Inspect molecular loci
+                        </div>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -364,7 +397,7 @@ const KaryotypeExplorer: React.FC<KaryotypeExplorerProps> = ({ species, onBack }
                      <i className="fa-solid fa-brain text-emerald-500"></i>
                      AI Consultant
                    </span>
-                   <button onClick={() => setIsAiMode(false)} className="text-[10px] font-black text-stone-400 hover:text-stone-900">RETURN TO STREAM</button>
+                   <button onClick={() => setIsAiMode(false)} className="text-[10px] font-black text-stone-400 hover:text-stone-900 uppercase tracking-widest">Return to Stream</button>
                 </div>
                 <div className="flex-grow overflow-y-auto p-8 space-y-6 custom-scroll">
                   {chatHistory.map((msg, i) => (
