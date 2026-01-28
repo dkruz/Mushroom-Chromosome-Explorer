@@ -128,7 +128,7 @@ const GenomicTerminal: React.FC<{ selectedChr: ChromosomeData | null; speciesId:
                  <p className="text-[11px] text-stone-400 leading-relaxed italic">Molecular landmarks found during the assembly alignment.</p>
               </div>
               <div>
-                 <p className="text-[10px] font-black text-emerald-400 uppercase mb-1">>seq|REF</p>
+                 <p className="text-[10px] font-black text-emerald-400 uppercase mb-1">{'>'}seq|REF</p>
                  <p className="text-[11px] text-stone-400 leading-relaxed italic">Standard FastA header indicating a high-confidence genomic locus.</p>
               </div>
            </div>
