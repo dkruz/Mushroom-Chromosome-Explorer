@@ -21,14 +21,14 @@ const SpeciesSelection: React.FC<SpeciesSelectionProps> = ({ onSelect, onCompare
         
         <div className="flex-grow flex flex-col md:flex-row items-center gap-8">
           <div className="flex-shrink-0 flex flex-col items-center">
-             <div className="text-emerald-400 font-black text-5xl mb-2">~25</div>
-             <div className="text-[10px] font-black text-stone-500 uppercase tracking-[0.2em]">Genomes Sequenced</div>
+             <div className="text-emerald-400 font-black text-5xl mb-2">80+</div>
+             <div className="text-[10px] font-black text-stone-500 uppercase tracking-[0.2em]">Chromosome-Level Assemblies</div>
           </div>
           <div className="h-[1px] w-12 bg-stone-800 md:h-12 md:w-[1px]"></div>
           <div>
             <h3 className="text-white font-black text-xs uppercase tracking-[0.2em] mb-3">The Genomic Elite</h3>
             <p className="text-stone-400 text-sm leading-relaxed italic max-w-xl">
-              Out of millions of species, only ~25 fungal genomes have been fully mapped at high resolution. These models provide the blueprints for understanding all of fungal life.
+              While genomic sequencing is accelerating, only a small percentage of fungal species have reached the "gold standard" of complete chromosomal mapping. These high-resolution models provide the essential blueprints for all of fungal life.
             </p>
           </div>
         </div>
